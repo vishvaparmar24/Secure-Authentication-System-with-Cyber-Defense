@@ -1,93 +1,134 @@
 # Secure Authentication System with Cyber Defense
+> **A Next-Gen Identity & Access Management (IAM) System with Real-time Threat Detection.**
 
-## 📌 Project Goal
-To build a secure web authentication system that not only facilitates user login but actively **detects and blocks real-world cyber attacks** using industry-standard defenses.
-
-Secure Authentication System with Attack Analysis - Designed and implemented a secure login system with password hashing, brute-force attack prevention, SQL injection mitigation, and session security. Studied real-world web authentication vulnerabilities and defenses.
+This project is a **comprehensive cybersecurity platform** designed to secure user identities by moving beyond static passwords. It implements an **Adaptive Risk Engine** that continuously evaluates user behavior, device fingerprints, and network telemetry to calculate a dynamic "Risk Score" for every identity.
 
 ---
 
-## 🛡️ Security & Cyber Defense Analysis
+## ❓ Why We Implemented This?
 
-### 1. Brute Force Attack
-- **Attack**: Attackers use automated scripts to try millions of password combinations.
-- **My Defense**: **Account Lockout Mechanism**.
-    - The system tracks failed login attempts.
-    - After **5 failed attempts**, the account is **locked for 15 minutes**.
-    - Logging: All failed attempts and lock events are logged to the `security_logs` database table.
+Traditional authentication (Username + Password) is broken.
+-   **Static passwords** are easily stolen (Credential Stuffing).
+-   **Simple locks** annoy legitimate users.
+-   **Reactive security** (checking logs after a hack) is too late.
 
-### 2. SQL Injection (SQLi)
-- **Attack**: Injecting malicious SQL code into input fields to bypass authentication (e.g., `' OR '1'='1`).
-- **My Defense**: **Prepared Statements**.
-    - Used `mysql2` parameterized queries.
-    - Inputs are treated as data, never as executable code.
-    - **Outcome**: Malicious inputs are rendered harmless.
-
-### 3. Session Hijacking (XSS & Man-in-the-Middle)
-- **Attack**: Stealing session cookies to impersonate users.
-- **My Defense**: **HttpOnly & Secure Cookies**.
-    - **HttpOnly**: JavaScript cannot access the cookie (prevents XSS theft).
-    - **Secure**: Cookies are only sent over HTTPS (in production).
-    - **JWT**: Stateless, signed tokens ensure data integrity.
-
-### 4. Plain Text Password Theft
-- **Attack**: If the database is compromised, passwords are readable.
-- **My Defense**: **Bcrypt Hashing**.
-    - Passwords are salted and hashed before storage.
-    - Even DB admins cannot read the actual passwords.
+**The Solution:** An **Adaptive Security Model**.
+Instead of treating all logins equally, this system asks: *"Is this login suspicious?"*
+If a user logs in from a new device, at 3 AM, with 5 previous failed attempts, the system **automatically reacts** (increases risk score, challenges user, or blocks access) *before* damage is done.
 
 ---
 
-## 🏗️ System Architecture
+## ⚙️ How It Works (The Workflow)
 
-### Tech Stack
-- **Frontend**: HTML5, CSS3 (Premium Dark UI), Vanilla JS.
-- **Backend**: Node.js, Express.js.
-- **Database**: MySQL.
-- **Security**: Helmet (Headers), Rate-Limit (DDoS protection), Bcrypt, JWT.
+### 1. The Login Flow (Adaptive Auth)
+1.  **User Enters Credentials**: System verifies email/password (`bcrypt` hash check).
+2.  **Risk Engine Analysis**: Before granting access, the system checks:
+    -   Is this a **New Device**?
+    -   Is the IP address **Blacklisted**?
+    -   Has the user had **Multiple Failed Attempts** recently?
+3.  **Decision Gate**:
+    -   🟢 **Risk Score < 30**: Allow Login (Seamless).
+    -   🟡 **Risk Score 30-70**: Flag as "Moderate Risk" (In real-world: Trigger MBA/CAPTCHA).
+    -   🔴 **Risk Score > 70**: **BLOCK ACCESS** immediately & Alert SOC.
+4.  **Session Creation**: If allowed, a secure `HttpOnly` cookie is issued (immune to XSS attacks).
 
-### Workflow
-1. **User Login** -> **Rate Limiter** checks IP -> **Controller** verifies credentials.
-2. **Success** -> Issue JWT in HttpOnly Cookie -> Log "LOGIN_SUCCESS".
-3. **Failure** -> Increment Counter -> Log "LOGIN_FAIL" -> Lock if threshold met.
-
----
-
-## 🚀 How to Run Locally
-
-### 1. Prerequisites
-- Node.js installed.
-- MySQL installed and running.
-
-### 2. Database Setup
-Execute the SQL script in your MySQL client (Workbench, CLI, etc.):
-```sql
-SOURCE database_setup.sql;
-```
-
-### 3. Environment Setup
-Create a `.env` file in the root directory:
-```
-PORT=3000
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=secure_login_system
-JWT_SECRET=your_super_secret_key
-NODE_ENV=development
-```
-
-### 4. Install & Run
-```bash
-npm install
-npm start
-```
-Visit `http://localhost:3000`
+### 2. The SOC Feedback Loop
+1.  **Real-time Monitoring**: The **SOC Command Center** watches every event.
+2.  **Visualizing Threats**: Admins see live attack maps and risk heatmaps.
+3.  **Automated Response**: High-risk users are highlighted for manual review or auto-lockdown.
 
 ---
 
-## 🧪 Verification Steps (Try breaking it!)
+## 🚀 Key Features
 
-1. **Test Lockout**: Try logging in with a wrong password 5 times. You will see "Account is locked".
-2. **Test SQLi**: Enter `' OR 1=1 --` as the email. It will fail safely.
-3. **Check Logs**: Check the `security_logs` table in MySQL to see your failed attempts recorded.
+### 🧠 1. Adaptive Risk Scoring Engine
+-   Calculates a live **0-100 Risk Score** for every user.
+-   Increases score based on specific triggers:
+    -   `LOGIN_FAIL`: +10 points
+    -   `NEW_DEVICE`: +20 points
+    -   `BRUTE_FORCE_DETECTED`: +50 points
+-   Scores decay over time (mock implementation) to allow user rehabilitation.
+
+### 🖥️ 2. SOC Command Center (Admin Dashboard)
+A cyberpunk-themed interface for Security Operations Center (SOC) analysts.
+-   **Live Terminal Log**: Matrix-style feed of security events (`/api/admin/events`).
+-   **Threat Distribution Chart**: Visual breakdown of attack types (SQLi, Brute Force, etc.).
+-   **Identity Risk Heatmap**: Real-time list of users with elevated risk levels.
+
+### 👤 3. Personal Security Center (User Dashboard)
+Empowers users to own their security.
+-   **Live Identity Risk Meter**: Shows the user their own current threat status.
+-   **Security Checklist**: Verifies password strength, network monitoring, and device trust.
+
+### 🔐 4. Enterprise-Grade Security
+-   **HttpOnly Cookies**: Prevents Session Hijacking via XSS.
+-   **Helmet.js**: Sets secure HTTP headers (HSTS, No-Sniff, X-Frame-Options).
+-   **Rate Limiting**: Blocks IPs that spam requests (DDoS / Brute Force protection).
+-   **Password Policy**: Enforces NIST guidelines (Min 8 chars, Upper, Lower, Symbol).
+
+---
+
+## 🛠️ Tech Stack
+
+-   **Backend**: Node.js, Express.js
+-   **Database**: MySQL (Relational Schema for Users, Logs, Risk Scores)
+-   **Security Modules**: `bcrypt`, `jsonwebtoken` (JWT), `helmet`, `express-rate-limit`
+-   **Frontend**: HTML5, Vanilla CSS (Glassmorphism/Cyberpunk Design), Chart.js
+-   **DevOps**: PM2/Nodemon, Git
+
+---
+
+## ⚙️ Installation & Setup
+
+1.  **Clone the Repository**
+    ```bash
+    git clone https://github.com/vishvaparmar24/Secure-Authentication-System-with-Cyber-Defense.git
+    cd Secure-Authentication-System-with-Cyber-Defense
+    ```
+
+2.  **Install Dependencies**
+    ```bash
+    npm install
+    ```
+
+3.  **Configure Database**
+    -   Create a MySQL database named `secure_login_system`.
+    -   Run the command in `database_setup.sql` to create tables.
+    -   Run the command in `database_upgrade.sql` to add the Risk Engine tables.
+
+4.  **Environment Variables**
+    Create a `.env` file:
+    ```
+    PORT=3000
+    DB_HOST=localhost
+    DB_USER=root
+    DB_PASSWORD=your_password
+    DB_NAME=secure_login_system
+    JWT_SECRET=super_secret_key_change_me
+    NODE_ENV=development
+    ```
+
+5.  **Run the Platform**
+    ```bash
+    npm start
+    ```
+    -   **User Portal**: `http://localhost:3000`
+    -   **SOC Dashboard**: Login -> Click "View SOC Threat Map" (or go to `http://localhost:3000/admin_soc.html` if permitted).
+
+---
+
+## 🛡️ Security Architecture Overview
+
+| Layer | Defense Mechanism | Purpose |
+| :--- | :--- | :--- |
+| **Network** | Rate Limiting | Stop automated bots & DDoS |
+| **Transport** | HTTPS (Secure Cookie) | Prevent Man-in-the-Middle attacks |
+| **Application** | Helmet.js Headers | Prevent XSS, Clickjacking |
+| **Identity** | Risk Engine | Detect compromised accounts behaviorally |
+| **Data** | Salted Hashing (Bcrypt) | Protect passwords in case of DB breach |
+
+---
+
+### 👨‍💻 Author
+**Vishva Parmar**
+*Cybersecurity Engineer & Full Stack Developer*
