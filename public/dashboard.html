@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Personal Security Center</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .risk-meter-container {
+            width: 200px;
+            height: 100px;
+            /* Semi-circle */
+            overflow: hidden;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .risk-meter {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(#22c55e 0deg 60deg,
+                    #eab308 60deg 120deg,
+                    #ef4444 120deg 180deg,
+                    transparent 180deg);
+            transform: rotate(-90deg);
+            position: absolute;
+            top: 0;
+            left: 0;
+            mask-image: radial-gradient(circle, transparent 60%, black 61%);
+            -webkit-mask-image: radial-gradient(circle, transparent 60%, black 61%);
+        }
+
+        .risk-score-display {
+            text-align: center;
+            margin-top: -40px;
+        }
+
+        .score-val {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .score-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .security-action-list {
+            list-style: none;
+            margin-top: 1.5rem;
+        }
+
+        .security-action-list li {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .verified-badge {
+            color: #22c55e;
+        }
+
+        .warning-badge {
+            color: #eab308;
+        }
+    </style>
+</head>
+
+<body class="soc-auth-body" style="align-items: flex-start; padding-top: 4rem;">
+
+    <div class="auth-card" style="max-width: 600px;">
+        <div class="dashboard-header" style="border: none; margin-bottom: 1rem;">
+            <div>
+                <h1 style="text-align: left; font-size: 1.5rem; margin: 0;">Identity Status</h1>
+                <p class="subtitle" style="text-align: left; margin: 0;">User: <span id="usernameDisplay">...</span></p>
+            </div>
+            <button id="logoutBtn" class="logout-btn" style="width: auto;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0;">
+            <div class="risk-meter-container">
+                <div class="risk-meter"></div>
+            </div>
+            <div class="risk-score-display">
+                <div class="score-val" id="riskScore">0</div>
+                <div class="score-label">Live Threat Score</div>
+            </div>
+            <div id="riskLevelValues" style="margin-top: 1rem;">
+                <span class="security-badge" id="riskLevelBadge">ANALYZING...</span>
+            </div>
+        </div>
+
+        <h3 style="color: #94a3b8; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 1rem;">Security
+            Checklist</h3>
+        <ul class="security-action-list">
+            <li>
+                <span><i class="fas fa-lock" style="margin-right: 10px; color: #6366f1;"></i> Password Strength</span>
+                <span class="verified-badge"><i class="fas fa-check-circle"></i> Strong</span>
+            </li>
+            <li>
+                <span><i class="fas fa-network-wired" style="margin-right: 10px; color: #6366f1;"></i> Network
+                    Status</span>
+                <span id="networkStatus" class="verified-badge">Monitoring</span>
+            </li>
+            <li>
+                <span><i class="fas fa-shield-alt" style="margin-right: 10px; color: #6366f1;"></i> Adaptive
+                    Protection</span>
+                <span class="verified-badge">Active</span>
+            </li>
+        </ul>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="admin_soc.html" class="btn-primary"
+                style="display: inline-block; text-decoration: none; padding: 0.8rem 1.5rem; border-radius: 8px; font-size: 0.9rem;">
+                <i class="fas fa-chart-line"></i> View SOC Threat Map
+            </a>
+        </div>
+
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        async function initDashboard() {
+            try {
+                // Fetch Session Data (Cookie-based)
+                const res = await fetch('/api/auth/check-session', { credentials: 'include' });
+                if (!res.ok) throw new Error('Unauthorized');
+
+                const data = await res.json();
+
+                // Update UI with Real Data
+                document.getElementById('usernameDisplay').textContent = data.user.username || data.user.email;
+
+                // Risk Score
+                const score = data.riskScore || 0;
+                document.getElementById('riskScore').textContent = score;
+
+                const badge = document.getElementById('riskLevelBadge');
+                if (data.riskLevel === 'CRITICAL' || data.riskLevel === 'HIGH') {
+                    badge.textContent = "CRITICAL RISK";
+                    badge.style.color = "#ef4444";
+                    badge.style.background = "rgba(239, 68, 68, 0.1)";
+                } else if (data.riskLevel === 'MEDIUM') {
+                    badge.textContent = "MODERATE RISK";
+                    badge.style.color = "#eab308";
+                    badge.style.background = "rgba(234, 179, 8, 0.1)";
+                } else {
+                    badge.textContent = "SAFE IDENTITY";
+                    badge.style.color = "#22c55e";
+                    badge.style.background = "rgba(34, 197, 94, 0.1)";
+                }
+
+            } catch (error) {
+                // Redirect if not logged in
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Logout Override
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            window.location.href = 'index.html';
+        });
+
+        initDashboard();
+    </script>
+</body>
+
+</html>

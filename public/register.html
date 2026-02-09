@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Initialize Identity | Register</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="soc-auth-body">
+
+    <div class="auth-card">
+        <div class="auth-header">
+            <div style="font-size: 3rem; margin-bottom: 1rem; filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.5));">🔐
+            </div>
+            <h1>Create Identity</h1>
+            <p class="subtitle">Establish your secure credentials</p>
+        </div>
+
+        <form id="registerForm">
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="username" placeholder="Codename / Username" required>
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" placeholder="Email Address" required>
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="Password" required
+                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}"
+                    title="Must contain at least 8 characters, including uppercase, lowercase, and a symbol.">
+            </div>
+            <div
+                style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 1.5rem; margin-top: -1rem; padding-left: 1rem;">
+                * Min 8 chars, Upper, Lower & Symbol required
+            </div>
+
+            <button type="submit" id="registerBtn" class="btn-primary"
+                style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); box-shadow: 0 4px 6px -1px rgba(236, 72, 153, 0.3);">
+                Generate ID <i class="fas fa-check" style="margin-left: 8px;"></i>
+            </button>
+        </form>
+
+        <div id="messageBox" class="msg-box"></div>
+
+        <div class="auth-link">
+            <span style="opacity: 0.7;">Already authenticated?</span>
+            <a href="index.html" style="color: #ec4899;">Access Portal</a>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>
