@@ -3,7 +3,7 @@
 ## 📌 Project Goal
 To build a secure web authentication system that not only facilitates user login but actively **detects and blocks real-world cyber attacks** using industry-standard defenses.
 
-> **Resume Line**: Secure Authentication System with Attack Analysis - Designed and implemented a secure login system with password hashing, brute-force attack prevention, SQL injection mitigation, and session security. Studied real-world web authentication vulnerabilities and defenses.
+Secure Authentication System with Attack Analysis - Designed and implemented a secure login system with password hashing, brute-force attack prevention, SQL injection mitigation, and session security. Studied real-world web authentication vulnerabilities and defenses.
 
 ---
 
